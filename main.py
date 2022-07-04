@@ -13,5 +13,7 @@ for event in longpool.listen():
         if event.to_me:
             msg = event.text.lower()
             id = event.user_id
-            if msg == "hi":
-                send_some_msg(id, "Hi friend!")
+
+            if msg == "Начать":
+                send_some_msg(id, 'TATTS - бренд временных татуировок и накладных ноготочков. \r\n Мы есть на Ozon и Wildberries, тыкай меню, чтобы увидеть ссылки. \r\n Тут отчёт наш админ, а ещё подключен бот, для ответа на популярные вопросы. \r\n Запутаешься, пиши "Меню" ')
+
