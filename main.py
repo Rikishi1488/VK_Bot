@@ -17,7 +17,10 @@ keyboard.add_button('Отправить свое местоположение в
 settings = dict(one_time=False, inline=True)
 
 def send_some_msg(id, some_text):
-    vk_session.method("messages.send", {"user_id":id, "message":some_text,"random_id":0})
+    vk.messages.send(peer_id=id,message=some_text,keyboard=keyboard.get_keyboard(),random_id=0)
+
+def send_some_msg_kboard(id, some_text, kboard):
+    vk.messages.send(peer_id=id,message=some_text,keyboard=kboard.get_keyboard(),random_id=0)
 
 for event in longpool.listen():
     if event.type == VkEventType.MESSAGE_NEW:
@@ -27,4 +30,4 @@ for event in longpool.listen():
             print(msg);
             if msg == "начать":
                 send_some_msg(id, 'TATTS - бренд временных татуировок и накладных ноготочков. \r\n\r\n Мы есть на Ozon и Wildberries, тыкай меню, чтобы увидеть ссылки. \r\n\r\n Тут отчёт наш админ, а ещё подключен бот, для ответа на популярные вопросы. \r\n\r\n Запутаешься, пиши "Меню" ')
-            else: vk.messages.send(peer_id=id,message="Ну привет! Я бот! Хочешь, отправлю историю твоего браузера в правоохранительные органы?",keyboard=keyboard.get_keyboard(),random_id=0)
+            else: send_some_msg_kboard(id,"Ну привет! Я бот! Хочешь, отправлю историю твоего браузера в правоохранительные органы?",keyboard)
