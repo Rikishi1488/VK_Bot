@@ -84,6 +84,13 @@ def send_msg(id, some_text):
     vk.messages.send(peer_id=id,message=some_text,random_id=0)
 
 
+def send_everyone(some_text):
+    convers= vk.messages.getConversations()
+    print(convers)
+    for g in convers["items"]:
+        send_msg(g['conversation']['peer']['id'], some_text)
+
+
 def call_admins(id, some_text, kboard):
     if (id in calls_time):
         if ((datetime.datetime.now()-calls_time[id]).total_seconds()>500):
@@ -110,7 +117,7 @@ for event in longpool.listen():
             print(msg);
             print(isadmin);
 
-            if (("adminsetup" in msg) and isadmin):
+            if (("adminsetup " in msg) and isadmin):
                 try:
                     admins.append(msg[11:])
                     adf = open('admins.txt', 'w')
@@ -138,6 +145,9 @@ for event in longpool.listen():
 
             if msg == "оформить заказ":
                 send_msg_kboard(id,'Скидывай эскизы с размерами. Затем тыкай на кнопку "вызвать администратора" \r\n\r\n Он поможет тебе оформить заказ', Zakaz)
+
+            if (("рассылка " in msg) and isadmin):
+                send_everyone(event.text[9:])
 
             if msg == "прайс":
                 send_msg_kboard(id,'У нас шаблонные размеры. Если у вас будет нестандартный размер, то вы всё равно платите за ---- тату \r\n\r\n К примеру, 9x8см всё равно будет стоить 249руб. \r\n\r\n Мальенький(5x5) - 159руб. \r\n Средний(10x10) - 249руб.\r\n Большой(10x15) - 349руб.\r\n Широкий(5x15) - 199руб. \r\n Высокий(15x5) - 199руб. \r\n Очень большой(15x20) - 549уб.', Zakaz)
