@@ -1,4 +1,5 @@
 #НЕ ЗНАЕШЬ - НЕ ТРОГАЙ
+import datetime
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -7,6 +8,9 @@ from vk_api.utils import get_random_id
 vk_session = vk_api.VkApi(token="vk1.a.K6eYXuEK8BY8qUaVGLIksmTeSYjgmkcDhllTUT58MrmIusZF1xFqeEn62C496gpojPfE67FKDFQrWmQfqecOZv68a3FYtCAEj3zGB-lz6kc-V4Lozuv8cMQ0Hznn0k8fZJU5Coh1l1Fdy7NO6uXcacg3sGzo38Idk_OUWfJSjTCKt0IiEf818TlmCrYUXBMp")
 vk = vk_session.get_api()
 longpool = VkLongPoll(vk_session)
+
+#АНТИСПАМ
+calls_time=dict()
 
 #АДМИНИСТРАТОРЫ
 admins=["245248572", "270130810"]
@@ -75,12 +79,26 @@ AdminVizvan.add_button('Меню', color=VkKeyboardColor.SECONDARY)
 def send_msg_kboard(id, some_text, kboard):
     vk.messages.send(peer_id=id,message=some_text,keyboard=kboard.get_keyboard(),random_id=0)
 
+
 def send_msg(id, some_text):
     vk.messages.send(peer_id=id,message=some_text,random_id=0)
 
-def call_admins(id):
-    for g in admins:
-        send_msg(g, "У пользователя возник вопрос. Помогите ему. Быстрее. Ураа, вперед, давай давай!\r\nhttps://vk.com/gim214337181?sel="+str(id))#возможно тут надо что-то придумать
+
+def call_admins(id, some_text, kboard):
+    if (id in calls_time):
+        if ((datetime.datetime.now()-calls_time[id]).total_seconds()>500):
+            send_msg_kboard(id, some_text,kboard)
+            calls_time[id] = datetime.datetime.now()
+            for g in admins:
+                send_msg(g,"У пользователя возник вопрос:\r\nhttps://vk.com/gim214337181?sel=" + str(id))  # возможно тут надо что-то придумать
+        else:
+            send_msg_kboard(id, "Вы вызывали администратора недавно. Подождите еще "+str(int(500-((datetime.datetime.now()-calls_time[id]).total_seconds())))+" секунд. Если администраторы не отвечают, попробуйте позднее.", kboard)
+    else:
+        send_msg_kboard(id, some_text, kboard)
+        calls_time[id] = datetime.datetime.now()
+        for g in admins:
+            send_msg(g, "У пользователя возник вопрос:\r\nhttps://vk.com/gim214337181?sel=" + str(id))  # возможно тут надо что-то придумать
+
 
 #ОСНОВНОЙ ЦИКЛ ЛОГИКИ
 for event in longpool.listen():
@@ -114,8 +132,7 @@ for event in longpool.listen():
                 send_msg_kboard(id,'Бесплатная доставка за 1-3 дня по всей России О чём ещё можно мечтать? \r\n\r\n Ozon - \r\n\r\n Wildberries - ', Ozon)
 
             if msg == "админ":
-                send_msg_kboard(id,'Что вас интересует? \r\n\r\n Опишите максимально подробно и ждите ответа. Наш администратор ждёт вашего вопроса.', admin)
-                call_admins(id)
+                call_admins(id,'Что вас интересует? \r\n\r\n Опишите максимально подробно и ждите ответа. Наш администратор ждёт вашего вопроса.', admin)
             if msg == "хочу тату по своему эскизу":
                 send_msg_kboard(id,'Как сделать заказ тату по своему эскизу? \r\n Создать свой эскиз - canva.com \r\n найти эскиз - pinterest.ru \r\n\r\n 1.Выбери эскиз \r\n 2.Подбери необходимый размер \r\n 3.Скинь эскизы в этот диалог \r\n 4.Оформи и оплати заказ\r\n 5.Жди свои татушечки\r\n\r\n Узнать цены - \r\nМинимальный заказ от 750руб.', self)
 
@@ -126,6 +143,5 @@ for event in longpool.listen():
                 send_msg_kboard(id,'У нас шаблонные размеры. Если у вас будет нестандартный размер, то вы всё равно платите за ---- тату \r\n\r\n К примеру, 9x8см всё равно будет стоить 249руб. \r\n\r\n Мальенький(5x5) - 159руб. \r\n Средний(10x10) - 249руб.\r\n Большой(10x15) - 349руб.\r\n Широкий(5x15) - 199руб. \r\n Высокий(15x5) - 199руб. \r\n Очень большой(15x20) - 549уб.', Zakaz)
 
             if msg == "вызвать администратора":
-                send_msg_kboard(id,'Администраторам пришло уведомление', Zakaz)
-                call_admins(id)
+                call_admins(id, 'Администраторам пришло уведомление. С вами скоро свяжутся.', Zakaz)
 
